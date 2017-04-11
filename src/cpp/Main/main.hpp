@@ -17,4 +17,7 @@ void patchVnode(
 	VNode* __restrict__ const vnode
 );
 
+void deleteVNode(VNode* const vnode);
+void deleteVNodePtr(const std::size_t& vnode);
+
 #endif

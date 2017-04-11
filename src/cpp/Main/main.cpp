@@ -1,5 +1,4 @@
 #include "main.hpp"
-#include "../H/h.hpp"
 #include "../Diff/diff.hpp"
 #include "../VNode/VNode.hpp"
 #include <emscripten.h>
@@ -289,15 +288,17 @@ VNode* patch_element(const emscripten::val element, VNode* const vnode) {
 	return patch_vnode(emptyNodeAt(element), vnode);
 };
 
-std::size_t patch_vnodePtr(const std::size_t oldVnode, const std::size_t vnode) {
-	return reinterpret_cast<std::size_t>(patch_vnode(reinterpret_cast<VNode*>(oldVnode), reinterpret_cast<VNode*>(vnode)));
-};
-
-std::size_t patch_elementPtr(const emscripten::val element, const std::size_t vnode) {
-	return reinterpret_cast<std::size_t>(patch_element(element, reinterpret_cast<VNode*>(vnode)));
-};
+void deleteVNode(VNode* const vnode) {
+  for (std::vector<VNode*>::size_type i = vnode->children.size(); i--;) {
+    deleteVNode(vnode->children[i]);
+    // vnode->children[i] = NULL;
+  }
+  vnode->children.clear();
+  delete vnode;
+}
 
 EMSCRIPTEN_BINDINGS(patch_function) {
-	emscripten::function("patchVNode", &patch_vnodePtr, emscripten::allow_raw_pointers());
-	emscripten::function("patchElement", &patch_elementPtr, emscripten::allow_raw_pointers());
+	emscripten::function("patchVNode", &patch_vnode, emscripten::allow_raw_pointers());
+	emscripten::function("patchElement", &patch_element, emscripten::allow_raw_pointers());
+  emscripten::function("deleteVNode", &deleteVNode, emscripten::allow_raw_pointer<emscripten::arg<0>>());
 }

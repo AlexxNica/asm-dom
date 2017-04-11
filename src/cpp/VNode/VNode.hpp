@@ -16,33 +16,18 @@ class VNode {
       const std::string nodeText
     ): sel(nodeSel), text(nodeText) {};
     VNode(
+      const std::string nodeSel,
+      const std::string nodeKey,
       const std::string nodeText,
-      bool isText
-    ): text(nodeText) {};
-    VNode(
-      const std::string nodeSel,
       const std::map<std::string, std::string> nodeProps
-    ): sel(nodeSel), props(nodeProps) {};
+    ): sel(nodeSel), key(nodeKey), text(nodeText), props(nodeProps) {};
     VNode(
       const std::string nodeSel,
-      VNode* child
-    ): sel(nodeSel), children(std::vector<VNode*> { child }) {};
-    VNode(
-      const std::string nodeSel,
-      const std::map<std::string, std::string> nodeProps,
-      const std::string nodeText
-    ): sel(nodeSel), text(nodeText), props(nodeProps) {};
-    VNode(
-      const std::string nodeSel,
-      const std::map<std::string, std::string> nodeProps,
-      VNode* child
-    ): sel(nodeSel), props(nodeProps), children(std::vector<VNode*> { child }) {};
-    VNode(
-      const std::string nodeSel,
+      const std::string nodeKey,
       const std::string nodeText,
       const std::map<std::string, std::string> nodeProps,
       const std::vector<VNode*> nodeChildren
-    ): sel(nodeSel), text(nodeText), props(nodeProps), children(nodeChildren) {};
+    ): sel(nodeSel), key(nodeKey), text(nodeText), props(nodeProps), children(nodeChildren) {};
     std::string sel; 
     std::string key;
     std::string text;
