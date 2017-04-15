@@ -3,6 +3,6 @@
 
 #include "../VNode/VNode.hpp"
 
-void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode);
+void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode, const std::size_t& vnodePtr);
 
 #endif

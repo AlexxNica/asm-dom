@@ -4,10 +4,10 @@
 #include <iterator>
 #include <map>
 
-void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode) {
+void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode, const std::size_t& vnodePtr) {
 	EM_ASM_({
 		window['asmDomHelpers']['diff']($0, $1, $2);
-	}, reinterpret_cast<std::size_t>(oldVnode), reinterpret_cast<std::size_t>(vnode), vnode->elm);
+	}, reinterpret_cast<std::size_t>(oldVnode), vnodePtr, vnode->elm);
 
 	if (oldVnode->props.empty() && vnode->props.empty()) return;
 
@@ -16,11 +16,12 @@ void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode) {
 	{
 		if (vnode->props.count(it->first) == 0) {
 			EM_ASM_({
-				window['asmDomHelpers']['domApi']['removeAttribute'](
-					$0,
-					window['asmDomHelpers']['Pointer_stringify']($1)
-				);
-			}, vnode->elm, it->first.c_str());
+				window['asmDomHelpers']['vnodesData'][$0]['operations'].push([
+					'removeAttribute',
+					$1,
+					window['asmDomHelpers']['Pointer_stringify']($2)
+				]);
+			}, vnodePtr, vnode->elm, it->first.c_str());
 		}
 		++it;
 	}
@@ -31,12 +32,13 @@ void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode) {
 		isAttrDefined = oldVnode->props.count(it->first) != 0;
 		if (!isAttrDefined || (isAttrDefined && oldVnode->props.at(it->first).compare(it->second) != 0)) {
 			EM_ASM_({
-				window['asmDomHelpers']['domApi']['setAttribute'](
-					$0,
-					window['asmDomHelpers']['Pointer_stringify']($1),
-					window['asmDomHelpers']['Pointer_stringify']($2)
-				);
-			}, vnode->elm, it->first.c_str(), it->second.c_str());
+				window['asmDomHelpers']['vnodesData'][$0]['operations'].push([
+					'setAttribute',
+					$1,
+					window['asmDomHelpers']['Pointer_stringify']($2),
+					window['asmDomHelpers']['Pointer_stringify']($3)
+				]);
+			}, vnodePtr, vnode->elm, it->first.c_str(), it->second.c_str());
 		}
 		++it;
 	}

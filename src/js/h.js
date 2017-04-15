@@ -72,6 +72,9 @@ export const getHFunction = (lib) => (a, b, c, d) => {
   } else {
     result = lib._h_stdc(a, b, c, d);
   }
-  if (events) window.asmDomHelpers.vnodesData[result] = { events };
+  window.asmDomHelpers.vnodesData[result] = {
+    events,
+    operations: [],
+  };
   return result;
 };

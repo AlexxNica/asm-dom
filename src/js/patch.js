@@ -1,5 +1,6 @@
-export const getPatchFunction = (lib) => (oldVnode, vnode) => {
+export const getPatchFunction = (lib) => (oldVnode, vnode, callback) => {
   let result;
+  window.asmDomHelpers.vnodesData[vnode].callback = callback;
   if (typeof oldVnode === 'number') {
     result = lib.patchVNode(oldVnode, vnode);
     setTimeout(() => {
