@@ -2,7 +2,7 @@ import expect from 'expect';
 import init from '../src/';
 
 describe('patch', function testPatch() {
-  this.timeout(10000);
+  this.timeout(20000);
 
   let root;
   let vdom;
@@ -28,20 +28,28 @@ describe('patch', function testPatch() {
     document.body.appendChild(root);
   });
 
-  it('should have a tag', () => {
+  it('should have a tag', (done) => {
     const vnode = h('div');
-    const elmPtr = patch(root, vnode);
-    const elm = document.body.firstChild;
-    expect(elm.tagName).toEqual('DIV');
-    vdom.deleteVNode(elmPtr);
+    patch(root, vnode, {
+      callback: () => {
+        const elm = document.body.firstChild;
+        expect(elm.tagName).toEqual('DIV');
+        vdom.deleteVNode(vnode);
+        done();
+      },
+    });
   });
 
-  it('should create elements with text content', () => {
+  it('should create elements with text content', (done) => {
     const vnode = h('div', ['I am a string']);
-    const elmPtr = patch(root, vnode);
-    const elm = document.body.firstChild;
-    expect(elm.innerHTML).toEqual('I am a string');
-    vdom.deleteVNode(elmPtr);
+    patch(root, vnode, {
+      callback: () => {
+        const elm = document.body.firstChild;
+        expect(elm.innerHTML).toEqual('I am a string');
+        vdom.deleteVNode(vnode);
+        done();
+      },
+    });
   });
 
   /*
@@ -118,15 +126,19 @@ describe('patch', function testPatch() {
 
   // Others
 
-  it('should patch a node', () => {
+  it('should patch a node', (done) => {
     expect(document.body.children.length).toEqual(1);
     expect(document.body.firstChild).toEqual(root);
-    const span = h('span');
-    const elm = patch(root, span);
-    expect(document.body.children.length).toEqual(1);
-    expect(document.body.firstChild.nodeName).toEqual('SPAN');
-    expect(document.body.firstChild.getAttribute('id')).toBeFalsy();
-    expect(document.body.firstChild.className).toBeFalsy();
-    vdom.deleteVNode(elm);
+    const vnode = h('span');
+    patch(root, vnode, {
+      callback: () => {
+        expect(document.body.children.length).toEqual(1);
+        expect(document.body.firstChild.nodeName).toEqual('SPAN');
+        expect(document.body.firstChild.getAttribute('id')).toBeFalsy();
+        expect(document.body.firstChild.className).toBeFalsy();
+        vdom.deleteVNode(vnode);
+        done();
+      },
+    });
   });
 });

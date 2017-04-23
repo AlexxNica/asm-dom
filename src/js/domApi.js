@@ -61,7 +61,7 @@ const domApi = {
     nodes[nodePtr].textContent = text;
   },
   'commit': (vnodePtr) => {
-    requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
       const op = window.asmDomHelpers.vnodesData[vnodePtr].operations;
       for (let i = 0, n = op.length; i < n; i++) {
         domApi[op[i][0]](op[i][1], op[i][2], op[i][3]);

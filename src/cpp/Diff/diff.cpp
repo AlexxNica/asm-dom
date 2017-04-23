@@ -19,7 +19,7 @@ void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode, c
 				window['asmDomHelpers']['vnodesData'][$0]['operations'].push([
 					'removeAttribute',
 					$1,
-					window['asmDomHelpers']['Pointer_stringify']($2)
+					window['asmDom']['Pointer_stringify']($2)
 				]);
 			}, vnodePtr, vnode->elm, it->first.c_str());
 		}
@@ -35,8 +35,8 @@ void diff(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vnode, c
 				window['asmDomHelpers']['vnodesData'][$0]['operations'].push([
 					'setAttribute',
 					$1,
-					window['asmDomHelpers']['Pointer_stringify']($2),
-					window['asmDomHelpers']['Pointer_stringify']($3)
+					window['asmDom']['Pointer_stringify']($2),
+					window['asmDom']['Pointer_stringify']($3)
 				]);
 			}, vnodePtr, vnode->elm, it->first.c_str(), it->second.c_str());
 		}

@@ -291,7 +291,7 @@ void patchVnode(VNode* __restrict__ const oldVnode, VNode* __restrict__ const vn
 			window['asmDomHelpers']['vnodesData'][$0]['operations'].push([
 				'setTextContent',
 				$1,
-				window['asmDomHelpers']['Pointer_stringify']($2)
+				window['asmDom']['Pointer_stringify']($2)
 			]);
 		}, vnodePtr, vnode->elm, vnode->text.c_str());
 	}
