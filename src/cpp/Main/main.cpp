@@ -20,13 +20,13 @@ bool sameVnode(const VNode* __restrict__ const vnode1, const VNode* __restrict__
   return vnode1->key.compare(vnode2->key) == 0 && vnode1->sel.compare(vnode2->sel) == 0;
 };
 
-VNode* emptyNodeAt(const emscripten::val elm) {
+VNode* emptyNodeAt(const emscripten::val& elm) {
   VNode* vnode = new VNode(elm["tagName"].as<std::string>());
 	std::string id = elm["id"].as<std::string>();
 
   vnode->elm = EM_ASM_INT({
 		return window['asmDomHelpers']['domApi']['addNode'](
-			window['asmDomHelpers']['Pointer_stringify']($0)
+			window['asmDom']['Pointer_stringify']($0)
 		);
 	}, id.c_str());
   std::transform(vnode->sel.begin(), vnode->sel.end(), vnode->sel.begin(), ::tolower);
@@ -50,7 +50,7 @@ VNode* emptyNodeAt(const emscripten::val elm) {
   return vnode;
 };
 
-std::map<std::string, int>* createKeyToOldIdx(const std::vector<VNode*> children, const int beginIdx, const int endIdx) {
+std::map<std::string, int>* createKeyToOldIdx(const std::vector<VNode*>& children, const int beginIdx, const int endIdx) {
   std::size_t i = beginIdx;
 	std::map<std::string, int>* map = new std::map<std::string, int>();
   for (; i <= endIdx; ++i) {
@@ -65,27 +65,27 @@ int createElm(VNode* const vnode, const std::size_t& vnodePtr) {
 	if (vnode->sel.compare("!") == 0) {
 		vnode->elm = EM_ASM_INT({
 			return window['asmDomHelpers']['domApi']['createComment'](
-				window['asmDomHelpers']['Pointer_stringify']($0)
+				window['asmDom']['Pointer_stringify']($0)
 			);
 		}, vnode->text.c_str());
 	} else if (vnode->sel.empty()) {
 		vnode->elm = EM_ASM_INT({
 			return window['asmDomHelpers']['domApi']['createTextNode'](
-				window['asmDomHelpers']['Pointer_stringify']($0)
+				window['asmDom']['Pointer_stringify']($0)
 			);
 		}, vnode->text.c_str());
 	} else {
 		if (vnode->props.count(std::string("ns")) != 0) {
 			vnode->elm = EM_ASM_INT({
 				return window['asmDomHelpers']['domApi']['createElementNS'](
-					window['asmDomHelpers']['Pointer_stringify']($0),
-					window['asmDomHelpers']['Pointer_stringify']($1)
+					window['asmDom']['Pointer_stringify']($0),
+					window['asmDom']['Pointer_stringify']($1)
 				);
 			}, vnode->props.at(std::string("ns")).c_str(), vnode->sel.c_str());
 		} else {
 			vnode->elm = EM_ASM_INT({
 				return window['asmDomHelpers']['domApi']['createElement'](
-					window['asmDomHelpers']['Pointer_stringify']($0)
+					window['asmDom']['Pointer_stringify']($0)
 				);
 			}, vnode->sel.c_str());
 		}
@@ -107,7 +107,9 @@ int createElm(VNode* const vnode, const std::size_t& vnodePtr) {
 				window['asmDomHelpers']['vnodesData'][$0]['operations'].push([
 					'appendChild',
 					$1,
-					window['asmDomHelpers']['domApi']['createTextNode']($2)
+					window['asmDomHelpers']['domApi']['createTextNode'](
+						window['asmDom']['Pointer_stringify']($2)
+					)
 				]);
 			}, vnodePtr, vnode->elm, vnode->text.c_str());
 		}
@@ -118,7 +120,7 @@ int createElm(VNode* const vnode, const std::size_t& vnodePtr) {
 void addVnodes(
 	int parentElm,
 	int before,
-	std::vector<VNode*> vnodes,
+	std::vector<VNode*>& vnodes,
 	std::vector<VNode*>::size_type startIdx,
 	const std::vector<VNode*>::size_type endIdx,
 	const std::size_t& vnodePtr
@@ -136,7 +138,7 @@ void addVnodes(
 };
 
 void removeVnodes(
-	std::vector<VNode*> vnodes,
+	std::vector<VNode*>& vnodes,
 	std::vector<VNode*>::size_type startIdx,
 	const std::vector<VNode*>::size_type endIdx,
 	const std::size_t& vnodePtr
@@ -153,8 +155,8 @@ void removeVnodes(
 
 void updateChildren(
 	int parentElm,
-	std::vector<VNode*> oldCh,
-	std::vector<VNode*> newCh,
+	std::vector<VNode*>& oldCh,
+	std::vector<VNode*>& newCh,
 	const std::size_t& vnodePtr
 ) {
 	std::size_t oldStartIdx = 0;

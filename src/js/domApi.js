@@ -1,8 +1,6 @@
 import recycler from './domRecycler';
 
-export const nodes = {
-  0: null,
-};
+export const nodes = { 0: null };
 let ptr = 0;
 
 const addPtr = (node, ns) => {

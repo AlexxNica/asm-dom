@@ -6,8 +6,9 @@ const recycler = {
     if (list) list.push(node);
     else recycler.nodes[name] = [node];
   },
-  create(nodeName, ns = '') {
-    const name = nodeName.toUpperCase();
+  create(name, ns) {
+    name = name.toUpperCase();
+    ns = ns || '';
     const list = recycler.nodes[name + ns];
     return (
       list && list.pop() ||
@@ -29,20 +30,21 @@ const recycler = {
   },
   clean(node) {
     node.remove();
-    let len = node.attributes && node.attributes.length;
-    while (len--) node.removeAttribute(node.attributes[len].name);
-    if (node.asmDomListeners) {
-      node.asmDomListeners.forEach(x => { node[x] = undefined; });
-      node.asmDomListeners = undefined;
+    let i = node.attributes && node.attributes.length;
+    while (i--) node.removeAttribute(node.attributes[i].name);
+    if (node.asmDomRaws) {
+      for (i = node.asmDomRaws.length; i--;) node[node.asmDomRaws[i]] = undefined;
+      node.asmDomRaws = undefined;
     }
-    Object.keys(node).forEach(x => {
+    const keys = Object.keys(node);
+    for (i = keys.length; i--;) {
       if (
-        x[0] !== 'a' || x[1] !== 's' || x[2] !== 'm' ||
-        x[0] !== 'D' || x[1] !== 'o' || x[2] !== 'm'
+        keys[i][0] !== 'a' || keys[i][1] !== 's' || keys[i][2] !== 'm' ||
+        keys[i][3] !== 'D' || keys[i][4] !== 'o' || keys[i][5] !== 'm'
       ) {
-        node[x] = undefined;
+        node[keys[i]] = undefined;
       }
-    });
+    }
   },
   nodes: {},
 };

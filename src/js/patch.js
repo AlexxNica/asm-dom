@@ -1,14 +1,16 @@
-export const getPatchFunction = (lib) => (oldVnode, vnode, callback) => {
+export default (oldVnode, vnode, options) => {
   let result;
-  window.asmDomHelpers.vnodesData[vnode].callback = callback;
+  options = options || {};
+  window.asmDomHelpers.vnodesData[vnode].callback = options.callback;
   if (typeof oldVnode === 'number') {
-    result = lib.patchVNode(oldVnode, vnode);
-    setTimeout(() => {
-      window.asmDomHelpers.vnodesData[oldVnode] = undefined;
-      lib.deleteVNode(oldVnode);
-    });
+    result = window.asmDom.patchVNode(oldVnode, vnode);
+    if (options.clearMemory === undefined || options.clearMemory) {
+      setTimeout(() => {
+        window.asmDom.deleteVNode(oldVnode);
+      });
+    }
   } else {
-    result = lib.patchElement(oldVnode, vnode);
+    result = window.asmDom.patchElement(oldVnode, vnode);
   }
   return result;
 };

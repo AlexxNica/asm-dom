@@ -1,32 +1,45 @@
-import { getHFunction } from './js/h';
-import { getPatchFunction } from './js/patch';
+import h from './js/h';
+import patch from './js/patch';
 import diff from './js/diff';
 import domApi from './js/domApi';
 
-export default function load(config = {}) {
-  let lib;
+// import() is compiled to require.ensure, this is a polyfill for nodejs
+// an alternative solution is needed
+if (typeof require.ensure !== 'function') require.ensure = (d, c) => { c(require); };
+
+export default (config) => {
+  config = config || {};
+  let result;
   if ((config.useWasm || 'WebAssembly' in window) && !config.useAsmJS) {
-    /* eslint-disable */
-    config.memoryInitializerPrefixURL = '';
-    config.wasmBinary = new Uint8Array(require('../compiled/wasm/asm-dom.wasm'));
-    lib = require('../compiled/wasm/asm-dom.js')(config);
-    /* eslint-enable */
+    result = import('../compiled/wasm/asm-dom.wasm')
+                  .then((wasm) => {
+                    config.wasmBinary = new Uint8Array(wasm);
+                  })
+                  .then(() => import('../compiled/wasm/asm-dom.js'));
   } else {
-    // eslint-disable-next-line
-    lib = require('../compiled/asmjs/asm-dom.asm.js')(config);
+    result = import('../compiled/asmjs/asm-dom.asm.js');
   }
 
-  lib.h = getHFunction(lib);
-  lib.patch = getPatchFunction(lib);
+  return result
+    .then(lib => lib(config))
+    .then((lib) => {
+      if (!window && global) global.window = {};
 
-  /* eslint-disable */
-  window['asmDomHelpers'] = {
-    'Pointer_stringify': lib.Pointer_stringify,
-    'domApi': domApi,
-    'vnodesData': {},
-    'diff': diff,
-  };
-  /* eslint-enable */
+      window.asmDom = lib;
 
-  return lib;
-}
+      lib.h = h;
+      lib.patch = patch;
+      lib.deleteVNode = (oldVnode) => {
+        window.asmDomHelpers.vnodesData[oldVnode] = undefined;
+        lib._deleteVNode(oldVnode);
+      };
+
+      window.asmDomHelpers = {
+        domApi,
+        vnodesData: {},
+        diff,
+      };
+
+      return lib;
+    });
+};
